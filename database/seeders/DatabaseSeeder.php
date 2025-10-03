@@ -18,6 +18,9 @@ class DatabaseSeeder extends Seeder
             KaiAboutSeeder::class,
             KaiServiceSeeder::class,
             KaiNewsSeeder::class,
+            StationSeeder::class,
+            RouteSeeder::class,
+            ScheduleSeeder::class,
         ]);
     }
 }

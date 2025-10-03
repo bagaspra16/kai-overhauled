@@ -35,4 +35,11 @@ return [
         ],
     ],
 
+    'external_chatbot' => [
+        'api_key' => env('EXTERNAL_CHATBOT_API_KEY'),
+        'api_host' => env('EXTERNAL_CHATBOT_API_HOST'),
+        'api_url' => env('EXTERNAL_CHATBOT_API_URL'),
+        'api_endpoint' => env('EXTERNAL_CHATBOT_API_ENDPOINT'),
+    ],
+
 ];
