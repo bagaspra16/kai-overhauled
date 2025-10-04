@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>@yield('title', 'PT Kereta Api Indonesia (KAI)')</title>
     <meta name="description" content="@yield('description', 'PT Kereta Api Indonesia - Menghubungkan Nusantara dengan Layanan Transportasi Kereta Api Terbaik')">
     
@@ -14,6 +15,9 @@
     
     <!-- Font Awesome CDN -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Select2 CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     
     <!-- Google Fonts -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -104,6 +108,179 @@
             scrollbar-width: thin;
             scrollbar-color: rgba(75, 85, 99, 0.3) transparent;
         }
+        
+        /* Select2 Custom Styles */
+        .select2-container--default .select2-selection--single {
+            height: 56px !important;
+            border: 1px solid #d1d5db !important;
+            border-radius: 12px !important;
+            padding: 0 16px !important;
+            background: white !important;
+            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
+            transition: all 0.3s ease !important;
+        }
+        
+        .select2-container--default .select2-selection--single:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1) !important;
+        }
+        
+        .select2-container--default .select2-selection--single:focus {
+            border-color: #2c2a6b !important;
+            box-shadow: 0 0 0 2px rgba(44, 42, 107, 0.2) !important;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__rendered {
+            line-height: 54px !important;
+            padding-left: 0 !important;
+            color: #374151 !important;
+            font-size: 16px !important;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow {
+            height: 54px !important;
+            right: 16px !important;
+        }
+        
+        .select2-container--default .select2-selection--single .select2-selection__arrow b {
+            border-color: #6b7280 transparent transparent transparent !important;
+            border-width: 6px 6px 0 6px !important;
+        }
+        
+        .select2-container--default.select2-container--open .select2-selection--single .select2-selection__arrow b {
+            border-color: transparent transparent #6b7280 transparent !important;
+            border-width: 0 6px 6px 6px !important;
+        }
+        
+        .select2-dropdown {
+            border: 1px solid #d1d5db !important;
+            border-radius: 12px !important;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05) !important;
+            margin-top: 4px !important;
+        }
+        
+        .select2-container--default .select2-results__option {
+            padding: 12px 16px !important;
+            color: #374151 !important;
+            font-size: 16px !important;
+        }
+        
+        .select2-container--default .select2-results__option--highlighted[aria-selected] {
+            background-color: #2c2a6b !important;
+            color: white !important;
+        }
+        
+        .select2-container--default .select2-results__option[aria-selected=true] {
+            background-color: #eb6a28 !important;
+            color: white !important;
+        }
+        
+        .select2-container--default .select2-search--dropdown .select2-search__field {
+            border: 1px solid #d1d5db !important;
+            border-radius: 8px !important;
+            padding: 8px 12px !important;
+            margin: 8px !important;
+            font-size: 16px !important;
+        }
+        
+        .select2-container--default .select2-results__option .select2-results__group {
+            padding: 8px 16px !important;
+            font-weight: 600 !important;
+            color: #2c2a6b !important;
+            background-color: #f9fafb !important;
+            border-bottom: 1px solid #e5e7eb !important;
+        }
+        
+        /* Cookie Consent Styles */
+        .cookie-consent-backdrop {
+            backdrop-filter: blur(8px);
+        }
+        
+        /* Glassmorphism effects for cookie consent */
+        .cookie-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+        }
+        
+        .cookie-glass-panel {
+            background: rgba(249, 250, 251, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        .cookie-glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
+        }
+        
+        .cookie-toggle input:checked + .cookie-toggle-slider {
+            background-color: #2c2a6b;
+        }
+        
+        .cookie-toggle input:checked + .cookie-toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .cookie-toggle-slider {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: .4s;
+        }
+        
+        .cookie-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            top: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* Cookie notification animation */
+        @keyframes cookieSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes cookieSlideDown {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+        
+        .cookie-consent-banner {
+            animation: cookieSlideUp 0.5s ease-out;
+        }
+        
+        .cookie-consent-banner.hiding {
+            animation: cookieSlideDown 0.3s ease-in;
+        }
     </style>
     
     @yield('styles')
@@ -169,6 +346,11 @@
                         <span class="relative z-10 font-medium">Berita</span>
                         <div class="absolute inset-0 bg-gradient-to-r from-kai-orange to-kai-orange-light rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 opacity-20"></div>
                     </a>
+                    <a href="{{ route('ticket.search') }}" 
+                       class="relative px-6 py-3 text-kai-white hover:text-kai-orange transition-all duration-300 rounded-full group {{ request()->routeIs('ticket.*') ? 'text-kai-orange bg-white/10' : '' }}">
+                        <span class="relative z-10 font-medium">Cari Tiket</span>
+                        <div class="absolute inset-0 bg-gradient-to-r from-kai-orange to-kai-orange-light rounded-full scale-0 group-hover:scale-100 transition-transform duration-300 opacity-20"></div>
+                    </a>
                     <a href="{{ route('contact') }}" 
                        class="relative px-6 py-3 text-kai-white hover:text-kai-orange transition-all duration-300 rounded-full group {{ request()->routeIs('contact') ? 'text-kai-orange bg-white/10' : '' }}">
                         <span class="relative z-10 font-medium">Kontak</span>
@@ -208,6 +390,10 @@
                     <a href="{{ route('news') }}" 
                        class="block px-4 py-3 text-kai-white hover:text-kai-orange hover:bg-white/10 transition-all duration-300 rounded-lg {{ request()->routeIs('news*') ? 'text-kai-orange bg-white/10' : '' }}">
                         <i class="fas fa-newspaper mr-3"></i>Berita
+                    </a>
+                    <a href="{{ route('ticket.search') }}" 
+                       class="block px-4 py-3 text-kai-white hover:text-kai-orange hover:bg-white/10 transition-all duration-300 rounded-lg {{ request()->routeIs('ticket.*') ? 'text-kai-orange bg-white/10' : '' }}">
+                        <i class="fas fa-ticket-alt mr-3"></i>Cari Tiket
                     </a>
                     <a href="{{ route('contact') }}" 
                        class="block px-4 py-3 text-kai-white hover:text-kai-orange hover:bg-white/10 transition-all duration-300 rounded-lg {{ request()->routeIs('contact') ? 'text-kai-orange bg-white/10' : '' }}">
@@ -283,7 +469,7 @@
                         </a></li>
                         <li><a href="{{ route('about') }}" class="text-gray-300 hover:text-kai-orange transition-all duration-300 flex items-center group">
                             <i class="fas fa-info-circle mr-3 group-hover:scale-110 transition-transform duration-300"></i>
-                            Tentang KAI
+                            Tentang
                         </a></li>
                             <li><a href="{{ route('services') }}" class="text-gray-300 hover:text-kai-orange transition-all duration-300 flex items-center group">
                             <i class="fas fa-subway mr-3 group-hover:scale-110 transition-transform duration-300"></i>
@@ -336,15 +522,29 @@
                         &copy; {{ date('Y') }} PT Kereta Api Indonesia (Persero). Semua hak dilindungi.
                     </p>
                     <div class="flex space-x-6 text-sm">
-                        <a href="#" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Kebijakan Privasi</a>
-                        <a href="#" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Syarat & Ketentuan</a>
-                        <a href="#" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">FAQ</a>
+                        <a href="{{ route('privacy') }}" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Kebijakan Privasi</a>
+                        <a href="{{ route('terms') }}" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Syarat & Ketentuan</a>
                     </div>
                 </div>
             </div>
         </div>
     </footer>
 
+    <!-- jQuery -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <!-- Cookie Helper JS -->
+    <script src="{{ asset('js/cookie-helper.js') }}"></script>
+    
+    <!-- Chatbot Component -->
+    @include('components.chatbot')
+    
+    <!-- Cookie Consent Component -->
+    @include('components.cookie-consent')
+    
     @yield('scripts')
 </body>
 </html>

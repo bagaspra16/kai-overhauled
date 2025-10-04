@@ -113,14 +113,6 @@
             </button>
         </template>
     </div>
-    
-    <!-- Scroll Indicator -->
-    <div class="absolute bottom-8 right-8 text-kai-white animate-bounce cursor-pointer" @click="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })">
-        <div class="flex flex-col items-center">
-            <span class="text-sm mb-2">Scroll</span>
-            <i class="fas fa-chevron-down text-2xl"></i>
-        </div>
-    </div>
 </section>
 
 <!-- Statistics Section -->

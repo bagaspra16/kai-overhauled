@@ -14,10 +14,14 @@ class DatabaseSeeder extends Seeder
     public function run(): void
     {
         $this->call([
+            AdminUserSeeder::class,
             KaiProfileSeeder::class,
             KaiAboutSeeder::class,
             KaiServiceSeeder::class,
             KaiNewsSeeder::class,
+            StationSeeder::class,
+            RouteSeeder::class,
+            ScheduleSeeder::class,
         ]);
     }
 }
