@@ -114,26 +114,233 @@ class ChatbotController extends Controller
      */
     private function processMessage(string $message): string
     {
+        // Handle greeting and opening messages
+        if ($this->isGreeting($message)) {
+            return $this->getGreetingResponse();
+        }
+        
+        // Handle closing messages
+        if ($this->isClosing($message)) {
+            return $this->getClosingResponse();
+        }
+        
+        // Handle quick actions specifically
+        if ($this->isQuickAction($message)) {
+            return $this->handleQuickAction($message);
+        }
+        
         // Check for Commuter Line queries first
         $commuterResponse = $this->handleCommuterLineQuery($message);
         if ($commuterResponse) {
             return $commuterResponse;
         }
         
-        // Check if it's a general query that should go to external API
-        if ($this->isGeneralOrSimpleQuery($message)) {
-            $externalResponse = $this->handleExternalQuery($message);
-            
-            // If external API gives a generic response, try KAI database
-            if ($this->isGenericKaiResponse($externalResponse)) {
-                return $this->generateKaiResponseFromDatabase($message);
-            }
-            
-            return $externalResponse;
+        // For KAI-specific queries, use database first (prioritize local data)
+        $kaiResponse = $this->generateKaiResponseFromDatabase($message);
+        
+        // If no specific KAI response found, provide helpful fallback
+        if ($this->isGenericResponse($kaiResponse)) {
+            return $this->getHelpfulFallback($message);
         }
         
-        // For KAI-specific queries, use database first
-        return $this->generateKaiResponseFromDatabase($message);
+        return $kaiResponse;
+    }
+
+    /**
+     * Check if message is a greeting
+     */
+    private function isGreeting(string $message): bool
+    {
+        $greetings = ['hai', 'halo', 'hello', 'hi', 'selamat', 'pagi', 'siang', 'sore', 'malam', 'assalamualaikum', 'hei', 'hey'];
+        $message = strtolower(trim($message));
+        
+        foreach ($greetings as $greeting) {
+            if (strpos($message, $greeting) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if message is a closing/goodbye
+     */
+    private function isClosing(string $message): bool
+    {
+        $closings = ['bye', 'goodbye', 'selamat tinggal', 'dadah', 'sampai jumpa', 'terima kasih', 'thanks', 'makasih', 'wassalam', 'exit', 'quit', 'stop'];
+        $message = strtolower(trim($message));
+        
+        foreach ($closings as $closing) {
+            if (strpos($message, $closing) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Check if message is a quick action
+     */
+    private function isQuickAction(string $message): bool
+    {
+        $quickActions = ['jadwal kereta', 'informasi layanan', 'berita terbaru', 'tentang kai', 'info stasiun'];
+        $message = strtolower(trim($message));
+        
+        foreach ($quickActions as $action) {
+            if ($message === $action) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get interactive greeting response
+     */
+    private function getGreetingResponse(): string
+    {
+        $greetings = [
+            "👋 Halo! Selamat datang di KAI Assistant!\n\nSaya siap membantu Anda dengan informasi seputar:\n🚂 Jadwal kereta api\n🏢 Layanan KAI\n📰 Berita terbaru\n🏛️ Informasi stasiun\n📍 Rute perjalanan\n\nAda yang bisa saya bantu hari ini?",
+            "🌟 Hai! Saya KAI Assistant, asisten virtual Anda!\n\nSilakan pilih topik yang ingin Anda ketahui:\n• Jadwal & Harga Tiket\n• Layanan & Fasilitas\n• Berita & Pengumuman\n• Informasi Stasiun\n• Tentang KAI\n\nKetik pertanyaan Anda atau pilih dari menu di atas! 😊",
+            "🚂 Selamat datang di KAI Assistant!\n\nSaya di sini untuk membantu Anda mendapatkan informasi terkini tentang:\n✅ Jadwal kereta api\n✅ Harga tiket\n✅ Layanan KAI\n✅ Berita & update\n✅ Lokasi stasiun\n\nSilakan bertanya atau gunakan quick action di bawah!"
+        ];
+        
+        return $greetings[array_rand($greetings)];
+    }
+    
+    /**
+     * Get interactive closing response
+     */
+    private function getClosingResponse(): string
+    {
+        $closings = [
+            "🙏 Terima kasih telah menggunakan KAI Assistant!\n\nSemoga informasi yang saya berikan bermanfaat untuk perjalanan Anda. Jangan lupa untuk selalu cek jadwal terbaru di aplikasi KAI Access ya!\n\n✨ Selamat jalan dan sampai jumpa lagi! 🚂",
+            "👋 Sampai jumpa!\n\nTerima kasih sudah chat dengan saya. Untuk informasi lebih lengkap, jangan lupa kunjungi:\n📱 Aplikasi KAI Access\n🌐 Website resmi KAI\n☎️ Call Center: 1500000\n\nSelamat berperjalanan dengan KAI! 🌟",
+            "🚂 Terima kasih telah menggunakan layanan KAI Assistant!\n\nSemoga perjalanan Anda menyenangkan dan selamat sampai tujuan! Jika ada pertanyaan lain, saya siap membantu kapan saja.\n\n💙 Salam hangat dari keluarga besar KAI!"
+        ];
+        
+        return $closings[array_rand($closings)];
+    }
+    
+    /**
+     * Handle quick action messages
+     */
+    private function handleQuickAction(string $message): string
+    {
+        $message = strtolower(trim($message));
+        
+        switch ($message) {
+            case 'jadwal kereta':
+                return $this->getScheduleResponse($message);
+            case 'informasi layanan':
+                return $this->getServicesResponse();
+            case 'berita terbaru':
+                return $this->getNewsResponse($message);
+            case 'tentang kai':
+                return $this->getAboutResponse();
+            case 'info stasiun':
+                return $this->getStationResponse($message);
+            default:
+                return $this->generateKaiResponseFromDatabase($message);
+        }
+    }
+    
+    /**
+     * Check if response is generic/default
+     */
+    private function isGenericResponse(string $response): bool
+    {
+        $genericIndicators = [
+            'Maaf, saya belum',
+            'tidak dapat memproses',
+            'Silakan coba dengan',
+            'Hmm, saya belum',
+            'Mari saya bantu'
+        ];
+        
+        foreach ($genericIndicators as $indicator) {
+            if (strpos($response, $indicator) !== false) {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get helpful fallback response
+     */
+    private function getHelpfulFallback(string $message): string
+    {
+        $message = strtolower($message);
+        
+        // Check for specific topics and provide targeted help
+        if (strpos($message, 'harga') !== false || strpos($message, 'tarif') !== false || strpos($message, 'biaya') !== false) {
+            return "💰 **Informasi Harga Tiket KAI**\n\n" .
+                   "Untuk informasi harga tiket terkini:\n\n" .
+                   "📱 **Cek harga di:**\n" .
+                   "• Aplikasi KAI Access (Recommended)\n" .
+                   "• Website kai.id\n" .
+                   "• Loket stasiun\n" .
+                   "• Call Center: 1500000\n\n" .
+                   "💡 **Tips:** Harga bervariasi berdasarkan:\n" .
+                   "• Kelas kereta (Ekonomi/Bisnis/Eksekutif)\n" .
+                   "• Jarak tempuh\n" .
+                   "• Waktu keberangkatan\n" .
+                   "• Promo yang sedang berlaku";
+        }
+        
+        if (strpos($message, 'booking') !== false || strpos($message, 'pesan') !== false || strpos($message, 'beli') !== false) {
+            return "🎫 **Cara Pesan Tiket KAI**\n\n" .
+                   "📱 **Metode Pemesanan:**\n" .
+                   "• Aplikasi KAI Access (Paling mudah)\n" .
+                   "• Website kai.id\n" .
+                   "• Loket stasiun terdekat\n" .
+                   "• Agen perjalanan resmi\n\n" .
+                   "💳 **Pembayaran:**\n" .
+                   "• Kartu kredit/debit\n" .
+                   "• E-wallet (OVO, DANA, dll)\n" .
+                   "• Transfer bank\n" .
+                   "• Tunai di loket\n\n" .
+                   "⏰ **Batas waktu:** 30 menit setelah pilih jadwal";
+        }
+        
+        if (strpos($message, 'cancel') !== false || strpos($message, 'batal') !== false || strpos($message, 'refund') !== false) {
+            return "🔄 **Pembatalan & Refund Tiket**\n\n" .
+                   "📋 **Ketentuan Pembatalan:**\n" .
+                   "• H-2: Refund 90% dari harga tiket\n" .
+                   "• H-1: Refund 75% dari harga tiket\n" .
+                   "• H-0: Tidak ada refund\n\n" .
+                   "📱 **Cara Pembatalan:**\n" .
+                   "• Melalui aplikasi KAI Access\n" .
+                   "• Datang ke loket stasiun\n" .
+                   "• Call Center: 1500000\n\n" .
+                   "📄 **Syarat:** Bawa e-tiket dan identitas asli";
+        }
+        
+        // Default helpful response
+        return "🤖 **KAI Assistant siap membantu!**\n\n" .
+               "Saya bisa memberikan informasi tentang:\n\n" .
+               "🚂 **Transportasi:**\n" .
+               "• Jadwal kereta api\n" .
+               "• Informasi stasiun\n" .
+               "• Rute perjalanan\n\n" .
+               "🏢 **Layanan:**\n" .
+               "• Fasilitas KAI\n" .
+               "• Jenis kereta\n" .
+               "• Layanan khusus\n\n" .
+               "📰 **Informasi:**\n" .
+               "• Berita terbaru\n" .
+               "• Pengumuman operasional\n" .
+               "• Tentang KAI\n\n" .
+               "💡 **Contoh pertanyaan:**\n" .
+               "\"Jadwal kereta Jakarta-Bandung\"\n" .
+               "\"Stasiun di Surabaya\"\n" .
+               "\"Layanan KAI apa saja?\"\n\n" .
+               "Silakan tanyakan yang lebih spesifik! 😊";
     }
 
     /**
@@ -676,44 +883,13 @@ class ChatbotController extends Controller
     }
 
     /**
-     * Handle external API queries using RapidAPI
+     * Handle external API queries (Disabled for stability)
      */
     private function handleExternalQuery(string $message): string
     {
-        $externalApiKey = '18c4b2fd16msh32d393319e95b02p1ebdb6jsncda25d8eb8d3';
-        $externalApiHost = 'chatgpt-42.p.rapidapi.com';
-        $externalApiUrl = 'https://chatgpt-42.p.rapidapi.com';
-        $externalApiEndpoint = '/matag2';
-
-        try {
-            $fullApiUrl = $externalApiUrl . $externalApiEndpoint;
-            
-            $response = Http::timeout(15)
-                ->withHeaders([
-                    'X-RapidAPI-Key' => $externalApiKey,
-                    'X-RapidAPI-Host' => $externalApiHost,
-                    'Content-Type' => 'application/json'
-                ])
-                ->post($fullApiUrl, [
-                    'message' => $message,
-                    'web_access' => false
-                ]);
-
-            if ($response->successful()) {
-                $data = $response->json();
-                $result = $data['result'] ?? $data['response'] ?? $data['answer'] ?? $data['message'] ?? null;
-                
-                if ($result) {
-                    return "🤖 **Jawaban AI:**\n\n" . $result . "\n\n*Catatan: Untuk informasi spesifik tentang KAI, silakan tanyakan dengan kata kunci seperti 'jadwal KAI', 'harga tiket', 'stasiun', atau 'layanan KAI'.*";
-                } else {
-                    return 'Maaf, tidak dapat memproses pertanyaan Anda saat ini. Silakan coba dengan pertanyaan yang lebih spesifik.';
-                }
-            } else {
-                return "Maaf, layanan AI sedang tidak tersedia. Silakan coba lagi nanti atau hubungi customer service kami di 1500000.";
-            }
-        } catch (\Exception $e) {
-            return "Pertanyaan Anda di luar informasi KAI. Untuk bantuan lebih lanjut, silakan hubungi customer service kami di 1500000.";
-        }
+        // External API disabled for better reliability
+        // Always return to KAI-specific responses
+        return $this->getHelpfulFallback($message);
     }
 
 
@@ -722,7 +898,16 @@ class ChatbotController extends Controller
      */
     private function getRandomResponse(string $category): string
     {
-        $responses = $this->kaiResponses[$category] ?? $this->kaiResponses['default'];
+        // Enhanced default responses with more interactivity
+        $enhancedResponses = [
+            'default' => [
+                "🤔 Hmm, saya belum sepenuhnya memahami pertanyaan Anda.\n\n🚂 **Saya bisa membantu dengan:**\n• Jadwal kereta api\n• Informasi stasiun\n• Layanan KAI\n• Berita terbaru\n• Rute perjalanan\n\nCoba tanyakan dengan lebih spesifik ya! 😊",
+                "💡 **Saya KAI Assistant!** Saya siap membantu Anda dengan informasi seputar kereta api.\n\n🔍 **Contoh pertanyaan:**\n• \"Jadwal kereta Jakarta-Bandung\"\n• \"Stasiun di Surabaya\"\n• \"Layanan KAI apa saja?\"\n• \"Berita terbaru KAI\"\n\nSilakan coba lagi dengan pertanyaan yang lebih spesifik! 🚂",
+                "🎯 **Mari saya bantu!** Untuk mendapatkan informasi yang tepat, coba gunakan kata kunci seperti:\n\n🚂 **Jadwal:** \"jadwal kereta\", \"jam keberangkatan\"\n🏢 **Layanan:** \"fasilitas KAI\", \"layanan apa saja\"\n📰 **Berita:** \"berita terbaru\", \"pengumuman\"\n🏛️ **Stasiun:** \"stasiun terdekat\", \"lokasi stasiun\"\n\nAda yang bisa saya bantu? 😊"
+            ]
+        ];
+        
+        $responses = $enhancedResponses[$category] ?? $this->kaiResponses[$category] ?? $enhancedResponses['default'];
         return $responses[array_rand($responses)];
     }
 
@@ -806,21 +991,90 @@ class ChatbotController extends Controller
             $news = KaiNews::latest()->take(5)->get();
             
             if ($news->isEmpty()) {
-                return "Maaf, tidak ada berita terbaru saat ini. Silakan kunjungi website resmi KAI untuk informasi terkini.";
+                return "📰 **Berita & Pengumuman KAI**\n\n" .
+                       "Maaf, tidak ada berita terbaru dalam sistem saat ini.\n\n" .
+                       "📱 **Untuk informasi terkini:**\n" .
+                       "• Website resmi: kai.id\n" .
+                       "• Aplikasi KAI Access\n" .
+                       "• Social Media: @KAI121\n" .
+                       "• Call Center: 1500000\n\n" .
+                       "🔔 **Jenis Informasi:**\n" .
+                       "• Pengumuman operasional\n" .
+                       "• Perubahan jadwal\n" .
+                       "• Layanan baru\n" .
+                       "• Promo & diskon";
             }
 
-            $response = "📰 **Berita Terbaru KAI:**\n\n";
+            $response = "📰 **Berita & Pengumuman Terbaru KAI**\n\n";
+            $response .= "Berikut informasi terkini untuk Anda:\n\n";
+            
             foreach ($news as $index => $item) {
-                $response .= ($index + 1) . ". **{$item->judul}**\n";
-                $response .= "   📅 {$item->tanggal->format('d M Y')} | ✍️ {$item->penulis}\n";
-                $response .= "   " . substr(strip_tags($item->isi), 0, 100) . "...\n\n";
+                $newsIcon = $this->getNewsIcon($item->judul ?? 'Berita');
+                $response .= "{$newsIcon} **{$item->judul}**\n";
+                
+                // Safe date formatting
+                $tanggal = 'Tanggal tidak tersedia';
+                if (isset($item->tanggal)) {
+                    try {
+                        if (is_string($item->tanggal)) {
+                            $tanggal = date('d M Y', strtotime($item->tanggal));
+                        } else {
+                            $tanggal = $item->tanggal->format('d M Y');
+                        }
+                    } catch (\Exception $e) {
+                        $tanggal = 'Tanggal tidak tersedia';
+                    }
+                }
+                
+                $penulis = $item->penulis ?? 'Tim KAI';
+                $response .= "📅 {$tanggal} | ✍️ {$penulis}\n";
+                
+                $isi = strip_tags($item->isi ?? 'Informasi lengkap tersedia di website KAI');
+                $preview = strlen($isi) > 120 ? substr($isi, 0, 120) . '...' : $isi;
+                $response .= "📝 {$preview}\n\n";
             }
             
-            $response .= "*Untuk membaca berita lengkap, kunjungi halaman berita di website KAI.*";
+            $response .= "📱 **Baca berita lengkap di:**\n";
+            $response .= "• Website kai.id\n";
+            $response .= "• Aplikasi KAI Access\n";
+            $response .= "• Follow @KAI121 di social media\n\n";
+            $response .= "💡 *Tanyakan topik berita spesifik untuk info detail!*";
+            
             return $response;
         } catch (\Exception $e) {
             Log::error('Error getting news: ' . $e->getMessage());
-            return "Maaf, terjadi kesalahan saat mengambil data berita. Silakan coba lagi nanti.";
+            return "📰 **Berita KAI**\n\n" .
+                   "Maaf, terjadi kendala teknis saat mengambil berita.\n\n" .
+                   "📱 **Silakan cek berita terbaru di:**\n" .
+                   "• Website kai.id\n" .
+                   "• Aplikasi KAI Access\n" .
+                   "• Social Media @KAI121\n" .
+                   "• Call Center: 1500000\n\n" .
+                   "🔄 Atau coba tanya lagi dalam beberapa saat.";
+        }
+    }
+    
+    /**
+     * Get news icon based on news title
+     */
+    private function getNewsIcon(string $title): string
+    {
+        $title = strtolower($title);
+        
+        if (strpos($title, 'jadwal') !== false || strpos($title, 'schedule') !== false) {
+            return '🕐';
+        } elseif (strpos($title, 'promo') !== false || strpos($title, 'diskon') !== false) {
+            return '🎁';
+        } elseif (strpos($title, 'layanan') !== false || strpos($title, 'service') !== false) {
+            return '🚂';
+        } elseif (strpos($title, 'pengumuman') !== false || strpos($title, 'announcement') !== false) {
+            return '📢';
+        } elseif (strpos($title, 'gangguan') !== false || strpos($title, 'delay') !== false) {
+            return '⚠️';
+        } elseif (strpos($title, 'baru') !== false || strpos($title, 'new') !== false) {
+            return '✨';
+        } else {
+            return '📰';
         }
     }
 
@@ -833,19 +1087,71 @@ class ChatbotController extends Controller
             $services = KaiService::all();
             
             if ($services->isEmpty()) {
-                return "Maaf, informasi layanan tidak tersedia saat ini.";
+                return "🏢 **Layanan KAI**\n\n" .
+                       "Maaf, informasi layanan tidak tersedia dalam sistem saat ini.\n\n" .
+                       "🚂 **Layanan Utama KAI:**\n" .
+                       "• Kereta Api Jarak Jauh\n" .
+                       "• Commuter Line (KRL)\n" .
+                       "• Kereta Api Bandara\n" .
+                       "• Layanan Kargo\n" .
+                       "• Pariwisata Kereta Api\n\n" .
+                       "📞 **Info lebih lanjut:**\n" .
+                       "• Call Center: 1500000\n" .
+                       "• Website: kai.id\n" .
+                       "• Aplikasi KAI Access";
             }
 
-            $response = "🚄 **Layanan KAI:**\n\n";
-            foreach ($services as $index => $service) {
-                $response .= ($index + 1) . ". **{$service->nama_layanan}**\n";
-                $response .= "   " . strip_tags($service->deskripsi) . "\n\n";
+            $response = "🏢 **Layanan KAI**\n\n";
+            $response .= "Berikut layanan-layanan yang tersedia:\n\n";
+            
+            foreach ($services->take(6) as $index => $service) {
+                $serviceIcon = $this->getServiceIcon($service->nama_layanan ?? 'Layanan');
+                $response .= "{$serviceIcon} **{$service->nama_layanan}**\n";
+                
+                $description = strip_tags($service->deskripsi ?? 'Informasi layanan tersedia di aplikasi KAI Access');
+                $shortDesc = strlen($description) > 100 ? substr($description, 0, 100) . '...' : $description;
+                $response .= "   {$shortDesc}\n\n";
             }
+            
+            $response .= "📱 **Untuk informasi lengkap:**\n";
+            $response .= "• Download aplikasi KAI Access\n";
+            $response .= "• Kunjungi website kai.id\n";
+            $response .= "• Call Center: 1500000\n\n";
+            $response .= "💡 *Tanyakan layanan spesifik untuk info detail!*";
             
             return $response;
         } catch (\Exception $e) {
             Log::error('Error getting services: ' . $e->getMessage());
-            return "Maaf, terjadi kesalahan saat mengambil data layanan. Silakan coba lagi nanti.";
+            return "🏢 **Layanan KAI**\n\n" .
+                   "Maaf, terjadi kendala teknis saat mengambil data layanan.\n\n" .
+                   "📱 **Silakan cek informasi layanan di:**\n" .
+                   "• Aplikasi KAI Access\n" .
+                   "• Website kai.id\n" .
+                   "• Call Center: 1500000\n" .
+                   "• Loket stasiun terdekat\n\n" .
+                   "🔄 Atau coba tanya lagi dalam beberapa saat.";
+        }
+    }
+    
+    /**
+     * Get service icon based on service name
+     */
+    private function getServiceIcon(string $serviceName): string
+    {
+        $serviceName = strtolower($serviceName);
+        
+        if (strpos($serviceName, 'commuter') !== false || strpos($serviceName, 'krl') !== false) {
+            return '🚇';
+        } elseif (strpos($serviceName, 'bandara') !== false || strpos($serviceName, 'airport') !== false) {
+            return '✈️';
+        } elseif (strpos($serviceName, 'kargo') !== false || strpos($serviceName, 'cargo') !== false) {
+            return '📦';
+        } elseif (strpos($serviceName, 'wisata') !== false || strpos($serviceName, 'pariwisata') !== false) {
+            return '🎯';
+        } elseif (strpos($serviceName, 'eksekutif') !== false || strpos($serviceName, 'luxury') !== false) {
+            return '👑';
+        } else {
+            return '🚂';
         }
     }
 
@@ -858,26 +1164,49 @@ class ChatbotController extends Controller
             $about = KaiAbout::first();
             $profile = KaiProfile::first();
             
-            $response = "🏢 **Tentang PT Kereta Api Indonesia (KAI):**\n\n";
+            $response = "🏢 **Tentang PT Kereta Api Indonesia (KAI)**\n\n";
             
             if ($about) {
-                $response .= "**Visi:** " . $about->visi . "\n\n";
-                $response .= "**Misi:** " . $about->misi . "\n\n";
-                $response .= "**Sejarah:** " . substr(strip_tags($about->sejarah), 0, 200) . "...\n\n";
+                $response .= "🎯 **Visi KAI:**\n";
+                $response .= $about->visi . "\n\n";
+                $response .= "🚀 **Misi KAI:**\n";
+                $response .= $about->misi . "\n\n";
+                $response .= "📖 **Sejarah Singkat:**\n";
+                $sejarah = strip_tags($about->sejarah ?? 'KAI adalah BUMN yang bergerak di bidang transportasi kereta api');
+                $response .= substr($sejarah, 0, 250) . "...\n\n";
+            } else {
+                $response .= "🚂 **PT Kereta Api Indonesia (Persero)**\n";
+                $response .= "Perusahaan kereta api terbesar di Indonesia yang melayani transportasi penumpang dan barang dengan komitmen keselamatan, ketepatan waktu, dan kenyamanan.\n\n";
             }
             
             if ($profile) {
-                $response .= "**Informasi Perusahaan:**\n";
+                $response .= "📞 **Kontak Informasi:**\n";
                 $response .= "📍 Alamat: " . $profile->alamat . "\n";
-                $response .= "📞 Telepon: " . $profile->telepon . "\n";
+                $response .= "☎️ Telepon: " . $profile->telepon . "\n";
                 $response .= "📧 Email: " . $profile->email . "\n";
                 $response .= "🌐 Website: " . $profile->website . "\n\n";
+            } else {
+                $response .= "📞 **Kontak Resmi:**\n";
+                $response .= "☎️ Call Center: 1500000\n";
+                $response .= "🌐 Website: kai.id\n";
+                $response .= "📱 Aplikasi: KAI Access\n\n";
             }
+            
+            $response .= "💡 **Ingin tahu lebih banyak?**\n";
+            $response .= "Tanyakan tentang layanan, jadwal, atau berita terbaru KAI!";
             
             return $response;
         } catch (\Exception $e) {
             Log::error('Error getting about info: ' . $e->getMessage());
-            return "Maaf, terjadi kesalahan saat mengambil informasi perusahaan. Silakan coba lagi nanti.";
+            return "🏢 **Tentang KAI**\n\n" .
+                   "Maaf, terjadi kendala teknis saat mengambil informasi.\n\n" .
+                   "🚂 **PT Kereta Api Indonesia (Persero)**\n" .
+                   "Perusahaan transportasi kereta api terbesar di Indonesia.\n\n" .
+                   "📞 **Kontak:**\n" .
+                   "• Call Center: 1500000\n" .
+                   "• Website: kai.id\n" .
+                   "• Aplikasi: KAI Access\n\n" .
+                   "🔄 Coba tanya lagi dalam beberapa saat.";
         }
     }
 
@@ -939,32 +1268,80 @@ class ChatbotController extends Controller
     private function getScheduleResponse(string $message): string
     {
         try {
+            // Try to get schedules with proper relationships
             $schedules = Schedule::with(['route.originStation', 'route.destinationStation'])
+                ->whereHas('route')
                 ->take(10)
                 ->get();
             
             if ($schedules->isEmpty()) {
-                return "Maaf, data jadwal tidak tersedia saat ini. Silakan cek aplikasi KAI Access untuk jadwal terkini.";
+                return "🚂 **Informasi Jadwal Kereta KAI**\n\n" .
+                       "Maaf, data jadwal tidak tersedia saat ini dalam sistem.\n\n" .
+                       "📱 **Untuk jadwal terkini, silakan gunakan:**\n" .
+                       "• Aplikasi KAI Access\n" .
+                       "• Website resmi KAI\n" .
+                       "• Call Center: 1500000\n\n" .
+                       "🔍 **Tips:** Anda juga bisa bertanya dengan format:\n" .
+                       "\"Jadwal kereta dari Jakarta ke Bandung\"\n" .
+                       "\"Jam kereta Argo Parahyangan\"";
             }
 
-            $response = "🕐 **Contoh Jadwal Kereta KAI:**\n\n";
-            $response .= "| Kereta | Rute | Berangkat | Tiba |\n";
-            $response .= "|--------|------|-----------|------|\n";
+            $response = "🚂 **Jadwal Kereta KAI Hari Ini**\n\n";
+            $response .= "Berikut beberapa jadwal kereta yang tersedia:\n\n";
             
+            $count = 0;
             foreach ($schedules->take(5) as $schedule) {
-                $origin = $schedule->route->originStation->name ?? 'N/A';
-                $destination = $schedule->route->destinationStation->name ?? 'N/A';
-                $departure = $schedule->departure_time ? $schedule->departure_time->format('H:i') : 'N/A';
-                $arrival = $schedule->arrival_time ? $schedule->arrival_time->format('H:i') : 'N/A';
+                $count++;
+                $origin = $schedule->route->originStation->name ?? 'Stasiun Asal';
+                $destination = $schedule->route->destinationStation->name ?? 'Stasiun Tujuan';
+                // Handle both string and Carbon instances safely
+                $departure = 'N/A';
+                $arrival = 'N/A';
                 
-                $response .= "| {$schedule->train_name} | {$origin} - {$destination} | {$departure} | {$arrival} |\n";
+                if ($schedule->departure_time) {
+                    if (is_string($schedule->departure_time)) {
+                        $departure = $schedule->departure_time;
+                    } else {
+                        $departure = $schedule->departure_time->format('H:i');
+                    }
+                }
+                
+                if ($schedule->arrival_time) {
+                    if (is_string($schedule->arrival_time)) {
+                        $arrival = $schedule->arrival_time;
+                    } else {
+                        $arrival = $schedule->arrival_time->format('H:i');
+                    }
+                }
+                $trainName = $schedule->train_name ?? 'Kereta ' . $count;
+                
+                $response .= "🚄 **{$trainName}**\n";
+                $response .= "📍 {$origin} → {$destination}\n";
+                $response .= "🕐 Berangkat: {$departure} | Tiba: {$arrival}\n";
+                if (isset($schedule->price)) {
+                    $response .= "💰 Harga: Rp " . number_format($schedule->price, 0, ',', '.') . "\n";
+                }
+                $response .= "\n";
             }
             
-            $response .= "\n*Untuk jadwal lengkap dan terkini, gunakan aplikasi KAI Access atau website resmi KAI.*";
+            $response .= "📱 **Untuk pemesanan tiket:**\n";
+            $response .= "• Download aplikasi KAI Access\n";
+            $response .= "• Kunjungi loket stasiun terdekat\n";
+            $response .= "• Call Center: 1500000\n\n";
+            $response .= "ℹ️ *Jadwal dan harga dapat berubah sewaktu-waktu*";
+            
             return $response;
         } catch (\Exception $e) {
             Log::error('Error getting schedule info: ' . $e->getMessage());
-            return "Maaf, terjadi kesalahan saat mengambil data jadwal. Silakan coba lagi nanti.";
+            
+            return "🚂 **Informasi Jadwal Kereta**\n\n" .
+                   "Maaf, terjadi kendala teknis saat mengambil data jadwal.\n\n" .
+                   "📱 **Silakan gunakan alternatif berikut:**\n" .
+                   "• Aplikasi KAI Access (Recommended)\n" .
+                   "• Website resmi kai.id\n" .
+                   "• Call Center: 1500000\n" .
+                   "• Loket stasiun terdekat\n\n" .
+                   "🔄 Atau coba tanya lagi dalam beberapa saat.";
         }
     }
 

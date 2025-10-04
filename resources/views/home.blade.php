@@ -390,7 +390,7 @@
                         
                         <!-- Date Badge -->
                         <div class="absolute top-4 left-4 bg-white/90 backdrop-blur-sm rounded-full px-3 py-1 text-sm font-semibold text-kai-blue">
-                            {{ $news->tanggal->format('d M Y') }}
+                            {{ $news->tanggal ? (is_string($news->tanggal) ? date('d M Y', strtotime($news->tanggal)) : $news->tanggal->format('d M Y')) : 'N/A' }}
                         </div>
                         
                         <!-- Read More Button (on hover) -->
@@ -411,7 +411,7 @@
                             </div>
                             <div class="flex items-center">
                                 <i class="fas fa-clock mr-2 text-kai-orange"></i>
-                                <span>{{ $news->tanggal->diffForHumans() }}</span>
+                                <span>{{ $news->tanggal ? (is_string($news->tanggal) ? \Carbon\Carbon::parse($news->tanggal)->diffForHumans() : $news->tanggal->diffForHumans()) : 'N/A' }}</span>
                             </div>
                         </div>
                         
