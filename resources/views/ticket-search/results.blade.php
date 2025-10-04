@@ -304,17 +304,32 @@
                                             Pemesanan
                                         </h4>
                                         <div class="space-y-4">
-                                            <button class="w-full bg-gradient-to-r from-kai-blue to-kai-blue-light hover:from-kai-blue-light hover:to-kai-blue text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 shadow-lg hover:shadow-xl">
-                                                <i class="fas fa-shopping-cart mr-3"></i>
-                                                Pesan Tiket
-                                            </button>
-                                            <button class="w-full bg-white border-2 border-kai-orange text-kai-orange hover:bg-kai-orange hover:text-white font-semibold py-3 px-6 rounded-xl transition-all duration-300">
-                                                <i class="fas fa-heart mr-3"></i>
-                                                Simpan ke Favorit
-                                            </button>
-                                            <div class="text-xs text-gray-500 text-center">
-                                                <i class="fas fa-info-circle mr-1"></i>
-                                                Harga dapat berubah sewaktu-waktu
+                                            <!-- Booking Information -->
+                                            <div class="bg-gradient-to-r from-orange-50 to-yellow-50 p-4 rounded-xl border border-orange-100">
+                                                <h5 class="font-semibold text-kai-orange flex items-center mb-3">
+                                                    <i class="fas fa-info-circle mr-2"></i>
+                                                    Informasi Pemesanan
+                                                </h5>
+                                                <div class="space-y-2 text-sm text-gray-600">
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-store text-kai-blue mr-2"></i>
+                                                        <span>Kunjungi loket stasiun terdekat</span>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-mobile-alt text-green-600 mr-2"></i>
+                                                        <span>Gunakan aplikasi KAI Access</span>
+                                                    </div>
+                                                    <div class="flex items-center">
+                                                        <i class="fas fa-phone text-purple-600 mr-2"></i>
+                                                        <span>Call Center: 1500000</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="text-xs text-gray-500 text-center bg-gray-50 p-3 rounded-lg">
+                                                <i class="fas fa-exclamation-triangle mr-1 text-yellow-500"></i>
+                                                Website ini hanya menyediakan informasi jadwal dan harga. 
+                                                <br>Untuk pemesanan, silakan gunakan channel resmi KAI.
                                             </div>
                                         </div>
                                     </div>

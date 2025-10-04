@@ -46,9 +46,12 @@ class Station extends Model
     /**
      * Get all routes (both origin and destination)
      */
-    public function routes()
+    public function getAllRoutes()
     {
-        return $this->originRoutes()->union($this->destinationRoutes());
+        $originRoutes = $this->originRoutes()->get();
+        $destinationRoutes = $this->destinationRoutes()->get();
+        
+        return $originRoutes->merge($destinationRoutes);
     }
 
     /**

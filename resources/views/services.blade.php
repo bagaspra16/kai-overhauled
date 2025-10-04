@@ -29,7 +29,7 @@
             <!-- Scroll Indicator -->
             <div class="mt-12 animate-bounce">
                 <div class="flex flex-col items-center text-kai-white cursor-pointer" @click="window.scrollTo({ top: window.innerHeight, behavior: 'smooth' })">
-                    <span class="text-sm mb-2">Scroll ke bawah</span>
+                    <span class="text-sm mb-2">Geser ke bawah</span>
                     <i class="fas fa-chevron-down text-2xl"></i>
                 </div>
             </div>

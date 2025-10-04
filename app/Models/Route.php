@@ -26,7 +26,6 @@ class Route extends Model
         'base_price' => 'decimal:2',
         'infant_price' => 'decimal:2',
         'distance_km' => 'integer',
-        'estimated_duration' => 'datetime:H:i',
         'is_active' => 'boolean'
     ];
 
@@ -76,6 +75,10 @@ class Route extends Model
      */
     public function getRouteNameAttribute()
     {
+        if (!$this->originStation || !$this->destinationStation) {
+            return 'Route not available';
+        }
+        
         return "{$this->originStation->name} - {$this->destinationStation->name}";
     }
 
@@ -99,9 +102,17 @@ class Route extends Model
             return null;
         }
         
-        $duration = \Carbon\Carbon::parse($this->estimated_duration);
-        $hours = $duration->format('H');
-        $minutes = $duration->format('i');
+        // Handle if estimated_duration is already a time string (H:i format)
+        if (is_string($this->estimated_duration)) {
+            $timeParts = explode(':', $this->estimated_duration);
+            $hours = (int) $timeParts[0];
+            $minutes = (int) ($timeParts[1] ?? 0);
+        } else {
+            // Handle if it's a Carbon instance or datetime
+            $duration = \Carbon\Carbon::parse($this->estimated_duration);
+            $hours = (int) $duration->format('H');
+            $minutes = (int) $duration->format('i');
+        }
         
         return "{$hours}j {$minutes}m";
     }

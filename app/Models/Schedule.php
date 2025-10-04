@@ -26,8 +26,6 @@ class Schedule extends Model
 
     protected $casts = [
         'departure_date' => 'date',
-        'departure_time' => 'datetime:H:i',
-        'arrival_time' => 'datetime:H:i',
         'total_seats' => 'integer',
         'available_seats' => 'integer',
         'price_modifier' => 'decimal:2',
@@ -111,6 +109,16 @@ class Schedule extends Model
      */
     public function getFormattedDepartureTimeAttribute()
     {
+        if (!$this->departure_time) {
+            return null;
+        }
+        
+        // Handle if departure_time is already a time string (H:i format)
+        if (is_string($this->departure_time)) {
+            return $this->departure_time;
+        }
+        
+        // Handle if it's a Carbon instance or datetime
         return \Carbon\Carbon::parse($this->departure_time)->format('H:i');
     }
 
@@ -119,6 +127,16 @@ class Schedule extends Model
      */
     public function getFormattedArrivalTimeAttribute()
     {
+        if (!$this->arrival_time) {
+            return null;
+        }
+        
+        // Handle if arrival_time is already a time string (H:i format)
+        if (is_string($this->arrival_time)) {
+            return $this->arrival_time;
+        }
+        
+        // Handle if it's a Carbon instance or datetime
         return \Carbon\Carbon::parse($this->arrival_time)->format('H:i');
     }
 
@@ -127,8 +145,18 @@ class Schedule extends Model
      */
     public function getJourneyDurationAttribute()
     {
-        $departure = \Carbon\Carbon::parse($this->departure_time);
-        $arrival = \Carbon\Carbon::parse($this->arrival_time);
+        if (!$this->departure_time || !$this->arrival_time) {
+            return null;
+        }
+        
+        // Parse times safely
+        $departure = is_string($this->departure_time) 
+            ? \Carbon\Carbon::parse($this->departure_time) 
+            : $this->departure_time;
+            
+        $arrival = is_string($this->arrival_time) 
+            ? \Carbon\Carbon::parse($this->arrival_time) 
+            : $this->arrival_time;
         
         // Handle next day arrival
         if ($arrival->lt($departure)) {
@@ -137,6 +165,14 @@ class Schedule extends Model
         
         $diff = $departure->diff($arrival);
         return $diff->format('%hj %im');
+    }
+
+    /**
+     * Get formatted duration (alias for journey_duration)
+     */
+    public function getFormattedDurationAttribute()
+    {
+        return $this->journey_duration;
     }
 
     /**

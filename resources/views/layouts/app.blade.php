@@ -189,6 +189,98 @@
             background-color: #f9fafb !important;
             border-bottom: 1px solid #e5e7eb !important;
         }
+        
+        /* Cookie Consent Styles */
+        .cookie-consent-backdrop {
+            backdrop-filter: blur(8px);
+        }
+        
+        /* Glassmorphism effects for cookie consent */
+        .cookie-glass {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.25);
+        }
+        
+        .cookie-glass-panel {
+            background: rgba(249, 250, 251, 0.8);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+        }
+        
+        .cookie-glass-card {
+            background: rgba(255, 255, 255, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
+        }
+        
+        .cookie-toggle input:checked + .cookie-toggle-slider {
+            background-color: #2c2a6b;
+        }
+        
+        .cookie-toggle input:checked + .cookie-toggle-slider:before {
+            transform: translateX(24px);
+        }
+        
+        .cookie-toggle-slider {
+            position: relative;
+            display: inline-block;
+            width: 48px;
+            height: 24px;
+            background-color: #ccc;
+            border-radius: 24px;
+            transition: .4s;
+        }
+        
+        .cookie-toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 2px;
+            top: 2px;
+            background-color: white;
+            border-radius: 50%;
+            transition: .4s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+        
+        /* Cookie notification animation */
+        @keyframes cookieSlideUp {
+            from {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+        
+        @keyframes cookieSlideDown {
+            from {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            to {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+        }
+        
+        .cookie-consent-banner {
+            animation: cookieSlideUp 0.5s ease-out;
+        }
+        
+        .cookie-consent-banner.hiding {
+            animation: cookieSlideDown 0.3s ease-in;
+        }
     </style>
     
     @yield('styles')
@@ -377,7 +469,7 @@
                         </a></li>
                         <li><a href="{{ route('about') }}" class="text-gray-300 hover:text-kai-orange transition-all duration-300 flex items-center group">
                             <i class="fas fa-info-circle mr-3 group-hover:scale-110 transition-transform duration-300"></i>
-                            Tentang KAI
+                            Tentang
                         </a></li>
                             <li><a href="{{ route('services') }}" class="text-gray-300 hover:text-kai-orange transition-all duration-300 flex items-center group">
                             <i class="fas fa-subway mr-3 group-hover:scale-110 transition-transform duration-300"></i>
@@ -430,9 +522,8 @@
                         &copy; {{ date('Y') }} PT Kereta Api Indonesia (Persero). Semua hak dilindungi.
                     </p>
                     <div class="flex space-x-6 text-sm">
-                        <a href="#" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Kebijakan Privasi</a>
-                        <a href="#" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Syarat & Ketentuan</a>
-                        <a href="#" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">FAQ</a>
+                        <a href="{{ route('privacy') }}" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Kebijakan Privasi</a>
+                        <a href="{{ route('terms') }}" class="text-gray-300 hover:text-kai-orange transition-colors duration-300">Syarat & Ketentuan</a>
                     </div>
                 </div>
             </div>
@@ -445,8 +536,14 @@
     <!-- Select2 JS -->
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     
+    <!-- Cookie Helper JS -->
+    <script src="{{ asset('js/cookie-helper.js') }}"></script>
+    
     <!-- Chatbot Component -->
     @include('components.chatbot')
+    
+    <!-- Cookie Consent Component -->
+    @include('components.cookie-consent')
     
     @yield('scripts')
 </body>
