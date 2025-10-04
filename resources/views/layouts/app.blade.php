@@ -7,6 +7,14 @@
     <title>@yield('title', 'PT Kereta Api Indonesia (KAI)')</title>
     <meta name="description" content="@yield('description', 'PT Kereta Api Indonesia - Menghubungkan Nusantara dengan Layanan Transportasi Kereta Api Terbaik')">
     
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="{{ asset('logo-background-2.png') }}">
+    <link rel="shortcut icon" type="image/png" href="{{ asset('logo-background-2.png') }}">
+    <link rel="apple-touch-icon" href="{{ asset('logo-background-2.png') }}">
+    <link rel="apple-touch-icon" sizes="180x180" href="{{ asset('logo-background-2.png') }}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{{ asset('logo-background-2.png') }}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{{ asset('logo-background-2.png') }}">
+    
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     
