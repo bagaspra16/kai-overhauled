@@ -124,17 +124,14 @@ Platform ini menggabungkan teknologi web terkini dengan desain yang responsif da
 <table>
   <tr>
     <td align="center">
-      <img src="https://github.com/bagaspra16.png" width="100px;" alt="Bagas Pratama Junianika"/><br />
       <sub><b>Bagas Pratama Junianika</b></sub><br />
       <sub>Fullstack Developer</sub>
     </td>
     <td align="center">
-      <img src="https://via.placeholder.com/100x100/4285F4/FFFFFF?text=HD" width="100px;" alt="Hiban Dairobi"/><br />
       <sub><b>Hiban Dairobi</b></sub><br />
       <sub>Research & Quality Assurance</sub>
     </td>
     <td align="center">
-      <img src="https://via.placeholder.com/100x100/34A853/FFFFFF?text=RHN" width="100px;" alt="Rayyan Haifan Naqi"/><br />
       <sub><b>Rayyan Haifan Naqi</b></sub><br />
       <sub>Frontend Developer & Editor</sub>
     </td>
@@ -162,9 +159,7 @@ Platform ini menggabungkan teknologi web terkini dengan desain yang responsif da
 
 Untuk pertanyaan, saran, atau dukungan teknis, silakan hubungi tim pengembang melalui:
 
-- **Email**: support@kai-overhauled.com
 - **GitHub**: [KAI Overhauled Repository](https://github.com/bagaspra16/kai-overhauled)
-- **Documentation**: [Project Wiki](https://github.com/bagaspra16/kai-overhauled/wiki)
 
 ---
 
